@@ -1,3 +1,5 @@
+//저울 캘리브레이션 무선 제어 리모컨
+//아두이노 쉴드, 232통신(저울), IR리모컨
 #include <LiquidCrystal.h>
 #include <SoftwareSerial.h>
 
