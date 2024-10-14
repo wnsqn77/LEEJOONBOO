@@ -1,0 +1,54 @@
+//아두이노 쉴드
+//RS232, 아두이노 통신
+#include <LiquidCrystal.h>
+#include <SoftwareSerial.h>
+
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+
+SoftwareSerial rs232Serial(2, 3);  // RX, TX
+
+
+String extractValue(String data) {
+  int separatorIndex = data.indexOf(':'); // ':' 문자 위치 찾기
+  if (separatorIndex != -1) {
+    // 콜론 뒤의 값을 반환
+    return data.substring(separatorIndex + 1);
+  }
+  return "";
+}
+
+void setup() {
+  Serial.begin(9600, SERIAL_8N1);  // 아두이노-시리얼모니터
+  rs232Serial.begin(9600);         // 아두이노-저울
+}
+
+void loop() {
+  // RS232로부터 데이터가 들어올 때
+  if (rs232Serial.available()) {
+    String receivedData = "";
+
+    // 한 줄의 데이터를 수신할 때까지 읽음
+    while (rs232Serial.available()) {
+      char receivedChar = rs232Serial.read();
+      receivedData += receivedChar;
+      delay(10); // 데이터 수신 안정화 딜레이
+    }
+
+    // 수신된 데이터가 있으면 LCD에 표시
+    if (receivedData.length() > 0) {
+      // 데이터에서 특정 값 추출
+      String extractedValue = extractValue(receivedData);
+
+      // LCD 초기화 및 데이터 업데이트
+      lcd.clear();
+      lcd.setCursor(0, 0); // 첫 번째 줄로 커서 이동
+      lcd.print("Data: ");
+      lcd.setCursor(0, 1); // 두 번째 줄로 커서 이동
+      lcd.print(extractedValue);
+
+      // 디버깅용으로 시리얼 모니터에 출력
+      Serial.println("Received: " + receivedData);
+      Serial.println("Extracted: " + extractedValue);
+    }
+  }
+}
